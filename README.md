@@ -1,265 +1,146 @@
+# 📅 API de Gestão de Eventos
 
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.0%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
+[![DRF](https://img.shields.io/badge/DRF-3.14%2B-red.svg)](https://www.django-rest-framework.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-  # 📘 Projeto Gestão de Eventos API
+## 📖 Sobre o Projeto
+Este sistema é uma API RESTful robusta para gerenciamento completo de eventos acadêmicos e corporativos. O projeto permite que organizadores criem eventos e atividades, enquanto participantes podem se inscrever e visualizar a programação.
 
-  [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
-  [![Django](https://img.shields.io/badge/Django-5.0%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
-  [![SQLite](https://img.shields.io/badge/SQLite-003B57.svg?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-  [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
----
-
-  ## Instituições de Fomento e Parceria
-  [![Website IFB](https://img.shields.io/badge/Website-IFB-%23508C3C.svg?labelColor=%23C8102E)](https://www.ifb.edu.br/)  
-  [![Website ihwbr](https://img.shields.io/badge/Website-ihwbr-%23DAA520.svg?labelColor=%232E2E2E)](https://hardware.org.br/)
+O sistema conta com painel administrativo moderno (**Jazzmin**), documentação automática (**Spectacular**) e autenticação (**Token** para API).
 
 ---
 
-  ## Orientador
-  Inclua aqui o nome e link para o perfil do orientador responsável.
+## 🚀 Tecnologias Utilizadas
+
+| Tecnologia | Finalidade |
+| :--- | :--- |
+| **Django** | Framework Web Principal |
+| **Django REST Framework** | Criação da API e Serializers |
+| **SQLite3** | Banco de dados (ambiente de desenvolvimento) |
+| **Django Filter** | Filtros avançados de busca |
+| **Jazzmin** | Interface administrativa moderna e responsiva |
+| **Drf-Spectacular** | Documentação interativa (Swagger UI) |
+| **Pillow** | Gerenciamento de imagens (Banners dos eventos) |
 
 ---
 
-  ## Sumário
-
-  - [Visão Geral](#visão-geral)
-  - [Pacotes Utilizados](#pacotes-utilizados)
-  - [Estrutura do Projeto](#estrutura-do-projeto)
-  - [Diagrama de Banco de Dados](#diagrama-de-banco-de-dados)
-  - [Documentação da API](#documentação-da-api)
-  - [Configuração do Ambiente](#configuração-do-ambiente)
-  - [Deploy](#deploy)
-
----
-
-  ## Visão Geral
-
-  Este projeto implementa uma **API de Gestão de Projetos Colaborativos** voltada para coordenadores, professores e estudantes.  
-  O sistema permite organizar **projetos**, **equipes** e **usuários**, com regras de permissão claras:
-
-  - **Admin/staff** → pode criar, editar e excluir projetos e equipes, além de definir líderes.  
-  - **Usuário comum (aluno/professor)** → só pode listar e consultar projetos e equipes em que participa.  
-
-  Funcionalidades principais:
-  - Cadastro de projetos com status e datas.  
-  - Criação de equipes vinculadas a projetos.  
-  - Definição de membros e líder da equipe.  
-  - Dashboard de projetos com equipes e participantes.  
-  - Documentação interativa da API (Swagger/ReDoc).  
-
----
-
-  ## Pacotes Utilizados
-
-  | Pacote                  | Versão | Descrição                                      |
-  | ----------------------- | ------ | ---------------------------------------------- |
-  | Django                  | >=5.0  | Framework web principal                        |
-  | djangorestframework     | latest | Toolkit para construção de APIs REST           |
-  | drf-spectacular         | latest | Geração automática de documentação OpenAPI     |
-  | drf-spectacular-sidecar | latest | Arquivos estáticos para Swagger/ReDoc          |
-  | rest_framework.authtoken| latest | Autenticação via token                         |
-  | sqlite3                 | latest | Banco de dados leve para desenvolvimento       |
-
-  > **Nota:** Consulte o arquivo `requirements.txt` para a lista completa e versões exatas.
-
----
-
-  ## Estrutura do Projeto
-  ```bash
-02-Gerencia_projetos/ 
-├── manage.py 
-├── requirements.txt 
-├── devlab/ 
-│ ├── settings.py 
-| │ ── urls.py 
-│ └── wsgi.py 
-├── core/ 
-│ ├── models.py 
-│ ├── views.py 
-│ ├── serializers.py 
-│ ├── admin.py 
-│ └── ... 
-└── docs/ └── database_diagram.png
-
-  ```
-  - **projeto/** → configurações principais do Django.  
-  - **core/** → aplicação principal com modelos, views, serializers e rotas.  
-  - **docs/** → documentação auxiliar (diagramas, imagens).  
-
----
-
-  ## Diagrama de Banco de Dados
-
-  ![Diagrama de Banco de Dados](./docs/database_diagram.png)
-
-
-
-# Diagrama ER – DevLab Project API
-
-## Entidades e Relacionamentos
-
-### Projeto
-| Campo             | Tipo      | Descrição                                |
-| ----------------- | --------- | ---------------------------------------- |
-| id                | PK (int)  | Identificador único do projeto           |
-| titulo            | CharField | Nome do projeto                          |
-| descricao         | TextField | Descrição detalhada                      |
-| cliente           | CharField | Cliente responsável                      |
-| status            | CharField | Status (planejado, andamento, concluído) |
-| data_inicio       | DateField | Data de início                           |
-| data_fim_prevista | DateField | Data prevista de término                 |
-
----
-
-### Equipe
-| Campo      | Tipo      | Descrição                         |
-| ---------- | --------- | --------------------------------- |
-| id         | PK (int)  | Identificador único da equipe     |
-| nome       | CharField | Nome da equipe                    |
-| descricao  | TextField | Descrição da equipe               |
-| projeto_id | FK (int)  | Chave estrangeira → Projeto (1:N) |
-| lider_id   | OneToOne  | Chave única → User (1:1)          |
-
----
-
-### User
-| Campo    | Tipo       | Descrição                      |
-| -------- | ---------- | ------------------------------ |
-| id       | PK (int)   | Identificador único do usuário |
-| username | CharField  | Nome de login                  |
-| email    | EmailField | Email do usuário               |
-| password | CharField  | Senha (hash)                   |
-
-
-
-
-
----
-
-
-
-## 🔗 Relacionamentos
-
-- **Projeto (1) ↔ (N) Equipe**  
-  Um projeto pode ter várias equipes, mas cada equipe pertence a um único projeto.
-
-- **Equipe (N) ↔ (N) User (membros)**  
-  Uma equipe pode ter vários membros, e um usuário pode participar de várias equipes.
-
-- **Equipe (1) ↔ (1) User (líder)**  
-  Uma equipe tem um líder único, e um usuário pode liderar apenas uma equipe.
-
----
-
-## 📐 Representação Visual em Texto
-
-
-
-  **Entidades principais:**
-  - **Projeto** → agrupa várias equipes.  
-  - **Equipe** → pertence a um projeto, tem membros e um líder.  
-  - **User** → pode estar em várias equipes e liderar uma delas.  
-
-  Relacionamentos:
-  - Projeto ↔ Equipe → **1:N**  
-  - Equipe ↔ User (membros) → **N:N**  
-  - Equipe ↔ User (líder) → **1:1**  
-
----
-
-  ## Documentação da API
-
-  A documentação interativa está disponível em:
-  - `/api/docs/` → Swagger UI  / spectacular
-  - `/api/docs/redoc/` → ReDoc  
-
-  ### Endpoints Principais
-
-  | Método | Endpoint                        | Descrição                                   | Autenticação |
-  | ------ | ------------------------------- | ------------------------------------------- | ------------ |
-  | GET    | `/api/projetos/`                | Lista projetos (admin vê todos, usuário só os seus) | Requerida    |
-  | GET    | `/api/projetos/{id}/dashboard/` | Detalhes do projeto + equipes + participantes | Requerida    |
-  | GET    | `/api/equipes/`                 | Lista equipes (admin vê todas, usuário só as suas) | Requerida    |
-  | POST   | `/api/equipes/{id}/definir_lider/` | Define líder da equipe (admin apenas)       | Requerida    |
-  | GET    | `/api/users/{id}/visao_geral/`  | Dados do usuário + projetos + equipes       | Requerida    |
-
-
-
-  ## Configuração do Ambiente
-
-1. **Clone o repositório:**
-
+## 📂 Estrutura do Projeto
 
 ```bash
-     git clone [https://github.com/usuario/projeto_api.git](https://github.com/diegomo2/Projeto_integrador_gerencia_projetos.git)
-     cd Projeto_integrador_gerencia_projetos
+gestao_eventos/          # Raiz do Projeto
+│
+├── media/               # Uploads (Banners de eventos)
+├── templates/
+│   └── index.html       # Frontend (Landing Page)
+├── core/                # App Principal
+│   ├── models.py        # Banco de Dados (Eventos, Atividades, etc)
+│   ├── views.py         # Lógica (ViewSets e Actions)
+│   ├── serializers.py   # Validação e Transformação JSON
+│   ├── urls.py          # Rotas da API
+│   └── tests.py         # Testes Automatizados
+├── gestao_eventos/      # Configurações do Django
+│   ├── settings.py      # Configuração de Apps, Banco e Auth
+│   └── urls.py          # Rotas Globais (Admin, API, Docs)
+├── manage.py
+└── requirements.txt
+```
+---
+
+## 🗂️  Modelo de Dados (Entidades)
+O banco de dados foi modelado para suportar relacionamentos complexos:
+
+### 1. **Participante (User)**:
+- Usuário customizado (herda de AbstractUser).
+- Campos extras: celular, tipo (estudante, palestrante, organizador).
+
+### 2. **Evento**:
+- Entidade principal.
+- Possui banner (imagem), datas, local e descrição.
+- Relacionamento 1:N com Atividades.
+
+### 3. **Atividade**:
+- Sub-eventos (Workshops, Palestras).
+- Possui um responsavel (Participante).
+
+### 4. **Inscrição**:
+- Tabela associativa (N:N) entre Participante e Evento.
+- Registra a data e evita inscrições duplicadas.
+
+---
+
+## ⚙️ Instalação e Configuração
+Siga os passos abaixo para rodar o projeto localmente:
+
+### 1. Configurar Ambiente
+```bash
+# Clone o repositório
+git clone https://github.com/mateussalvador/gestao-eventos.git
+cd gestao-eventos
+
+# Crie e ative o ambiente virtual
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+```
+### 2. Instalar Dependências
+```bash
+pip install -r requirements.txt
 ```
 
-  1. **Crie um ambiente virtual:**
+### 3. Banco de Dados e Usuário
+```bash
+# Cria as tabelas no banco SQLite
+python manage.py makemigrations
+python manage.py migrate
 
-     
+# Cria o administrador do sistema
+python manage.py createsuperuser
+# Defina usuário (ex: admin) e senha (ex: 123)
+```
 
-      ```bash
-         python -m venv venv
-         source venv/bin/activate  # Linux/Mac
-         venv\Scripts\activate     # Windows
-      ```
+### 4. Rodar o Servidor
+```bash
+python manage.py runserver
+```
 
-  2. **Instale as dependências:**
+---
 
-     
+## 🔌 Documentação da API
+A documentação interativa é gerada automaticamente pelo Swagger. Acesse: http://127.0.0.1:8000/api/docs/
 
-     ```bash
-     pip install -r requirements.txt
-     ```
+### Principais Endpoints
+| Método | Rota                             | Descrição                     | Auth |
+| :----- | :------------------------------- | :---------------------------- | :--- |
+| POST   | /api/token/                      | Obtém Token de Acesso (Login) |  🔓  |
+| GET    | /api/eventos                     | Lista todos os eventos        |  🔓  |
+| POST   | /api/eventos/                    | Cria novo evento              |  🔒
+| GET    | /api/eventos/{id}/dashboard/     | Dados do evento               |  🔓  |
+| POST   | /api/eventos/{id}/participantes/ | Inscrever-se no evento        |  🔒  |
+| GET    | /api/atividades/                 | Lista atividades              |  🔓  |
 
-  3. **Configure as variáveis de ambiente:**
+**Nota:** Rotas com 🔒 exigem o `header Authorization: Token SEU_TOKEN`.
 
-     
+---
 
-     ```bash
-     cp .env.example .env
-     # Edite .env com suas credenciais
-     ```
+## 🧪 Testes Automatizados
+O projeto inclui testes unitários para validar regras de negócio (ex: impedir inscrição dupla).
 
-  4. **Aplique as migrações e inicie o servidor:**
+Para rodar os testes:
+```bash
+python manage.py test
+```
 
-     
+---
 
-     ```bash
-     python manage.py migrate
-     python manage.py createsuperuser
-     python manage.py runserver
-     ```
+## 🎨 Painel Administrativo
+O sistema utiliza o Jazzmin para uma interface administrativa profissional. Acesse: http://127.0.0.1:8000/admin/
 
-
-
-  ## Deploy (opcional)
-
-  ### Plataforma Recomendada: [Render / Railway / AWS]
-
-  1. **Prepare o** `Procfile`**:**
-
-     Código
-
-     ```
-     web: gunicorn projeto.wsgi:application --log-file -
-     ```
-
-  2. **Configure variáveis de ambiente** na plataforma de deploy.
-
-  3. **Execute migrações em produção:**
-
-     bash
-
-     ```
-     python manage.py migrate
-     ```
-
-  4. **Colete arquivos estáticos (se aplicável):**
-
-     bash
-
-     ```
-     python manage.py collectstatic
-     ```
+### Funcionalidades do Admin:
+- Gerenciar Usuários e Permissões.
+- Criar Eventos e fazer upload de Banners.
+- Monitorar Inscrições.
