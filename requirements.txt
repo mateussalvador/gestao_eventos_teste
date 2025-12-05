@@ -1,0 +1,7 @@
+django
+djangorestframework
+django-jazzmin
+drf-spectacular
+pillow
+django-filter
+requests
