@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
 
+from decouple import config, Csv # Para variáveis de ambiente
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-chave-secreta-para-estudo'
-DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = config('SECRET_KEY') # chave secreta via variável de ambiente
+DEBUG = config('DEBUG', default=True, cast=bool) # modo debug via variável de ambiente
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv()) # hosts permitidos via variável de ambiente
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -21,12 +23,15 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',  # Adicionado para Autenticação por Token [cite: 698]
     'django_filters',            # Adicionado para Filtros [cite: 918]
     'drf_spectacular',
-    
+    'corsheaders', # Para CORS se necessário
+    'safedelete', # Para deleção segura de objetos
+
     # Minha App
     'core',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # Se necessário para CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,6 +81,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -102,17 +109,57 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+
+    'DEFAULT_PAGINATION_CLASS': 'core.pagination.CustomPagination',
+    'PAGE_SIZE': 20,
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+    },
 }
 
-SPECTACULAR_SETTINGS = {
+SPECTACULAR_SETTINGS = { # Configurações da documentação da API. Responsável pelo Swagger e Redoc
     'TITLE': 'API de Gestão de Eventos',
     'DESCRIPTION': 'API com Auth Token e Filtros Avançados.',
     'VERSION': '1.0.0',
 }
 
-JAZZMIN_SETTINGS = {
+JAZZMIN_SETTINGS = { # Configurações do Jazzmin. Responsável pela customização do admin
     "site_title": "Gestão de Eventos",
     "site_header": "Admin Eventos",
     "welcome_sign": "Bem-vindo ao Sistema",
     "search_model": "core.Participante",
+}
+
+CORS_ALLOWED_ORIGINS = config('CORS_ORIGINS', default='http://localhost:3000', cast=Csv()) # Configuração CORS via variável de ambiente
+
+CACHES = { # Configuração de cache simples. Pode ser ajustada conforme necessidade.
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+ 
+LOGGING = { # Configuração básica de logging para registrar eventos importantes
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs/django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
 }
