@@ -325,7 +325,7 @@ from django.http import HttpResponse  # para respostas HTTP personalizadas
 from django_filters.rest_framework import DjangoFilterBackend  # [cite: 974]
 from django.views.decorators.cache import cache_page  # para cache de views
 from django.utils.decorators import method_decorator  # para aplicar decoradores em métodos de classe
-from django.views.generic import ListView, TemplateView  # Novas: para views HTML
+from django.views.generic import ListView, TemplateView, DetailView  # Novas: para views HTML
 from django.contrib import messages  # Para feedback no form de contato
 from django.utils import timezone  # Para filtro de eventos futuros
 from django.core.paginator import Paginator  # Para paginação manual (compatível com API)
@@ -660,12 +660,6 @@ class EventosListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Próximos Eventos'
-        # Paginação manual (Bootstrap-ready)
-        if self.request.GET.get('page'):
-            paginator = Paginator(self.get_queryset(), self.paginate_by)
-            page_obj = paginator.get_page(self.request.GET.get('page'))
-            context['page_obj'] = page_obj
-            context['is_paginated'] = page_obj.has_other_pages()
         return context
 
 def eventos_list(request):
@@ -696,12 +690,6 @@ class BuscaEventosView(ListView):
         context['query'] = query
         context['resultados_count'] = self.object_list.count()
         context['page_title'] = f'Resultados para "{query}" ({context["resultados_count"]} eventos)'
-        # Paginação similar
-        if self.request.GET.get('page'):
-            paginator = Paginator(self.get_queryset(), self.paginate_by)
-            page_obj = paginator.get_page(self.request.GET.get('page'))
-            context['page_obj'] = page_obj
-            context['is_paginated'] = page_obj.has_other_pages()
         return context
 
 def busca_eventos(request):
@@ -731,3 +719,14 @@ class ContatoView(TemplateView):
 def contato(request):
     """View para /contato/ - GET/POST para form"""
     return ContatoView.as_view()(request)
+
+class EventoDetailView(DetailView):
+    model = Evento
+    template_name = 'evento_detalhes.html'
+    context_object_name = 'evento'
+
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('atividades')
+
+def evento_detalhes(request, pk):
+    return EventoDetailView.as_view()(request, pk=pk)

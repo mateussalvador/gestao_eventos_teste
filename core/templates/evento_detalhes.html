@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ evento.nome }} - Detalhes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar-brand { font-weight: 700; color: white !important; }
+        .nav-link { color: rgba(255,255,255,0.8) !important; transition: color 0.3s; }
+        .nav-link:hover { color: white !important; }
+        .search-form { max-width: 600px; margin: 0 auto; }
+        .search-form .form-control { border-radius: 50px 0 0 50px; border: none; padding: 15px 20px; }
+        .search-form .btn { border-radius: 0 50px 50px 0; background: #667eea; border: none; padding: 15px 25px; }
+        .event-detail-section { padding: 80px 0; background: #f8f9fa; }
+        .event-detail-section h2 { font-weight: 600; color: #333; margin-bottom: 3rem; text-align: center; }
+        .event-card { background: white; padding: 3rem; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .event-banner { width: 100%; height: 400px; object-fit: cover; border-radius: 15px; margin-bottom: 2rem; }
+        .event-title { font-size: 2.5rem; font-weight: 700; color: #333; margin-bottom: 1rem; }
+        .event-meta { margin-bottom: 2rem; }
+        .badge-date { background: #667eea; color: white; font-size: 1rem; padding: 0.75rem 1.5rem; border-radius: 25px; }
+        .badge-location { background: #f8f9fa; color: #667; font-size: 1rem; padding: 0.75rem 1.5rem; border-radius: 25px; margin-left: 1rem; }
+        .event-description { font-size: 1.1rem; line-height: 1.8; color: #555; margin-bottom: 3rem; }
+        .activities-section { margin-top: 3rem; }
+        .activities-section h3 { font-weight: 600; color: #333; margin-bottom: 2rem; }
+        .activity-card { background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; }
+        .activity-title { font-weight: 600; color: #333; }
+        .activity-meta { color: #666; font-size: 0.9rem; }
+        .btn-back { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 25px; padding: 12px 25px; font-weight: 600; transition: opacity 0.3s; }
+        .btn-back:hover { opacity: 0.9; color: white; }
+        .footer { background: #343a40; color: white; padding: 40px 0 20px; }
+        .footer a { color: #adb5bd; text-decoration: none; }
+        .footer a:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-calendar-alt me-2"></i>Portal de Eventos</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Início</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/eventos/">Eventos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/api/docs/">API</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/">Admin</a></li>
+                </ul>
+                <form class="d-flex ms-3 search-form" method="GET" action="/busca/">
+                    <input class="form-control me-0" type="search" placeholder="Buscar eventos..." name="q" aria-label="Buscar">
+                    <button class="btn" type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Seção de Detalhes do Evento -->
+    <section class="event-detail-section">
+        <div class="container">
+            <div class="event-card">
+                {% if evento.banner %}
+                    <img src="{{ evento.banner.url }}" alt="{{ evento.nome }}" class="event-banner">
+                {% else %}
+                    <div class="event-banner d-flex align-items-center justify-content-center bg-light text-muted">
+                        <i class="fas fa-image fa-4x"></i>
+                    </div>
+                {% endif %}
+                <h2 class="event-title">{{ evento.nome }}</h2>
+                <div class="event-meta">
+                    <span class="badge badge-date"><i class="fas fa-calendar me-2"></i>{{ evento.data_inicio|date:"d/m/Y" }} - {{ evento.data_fim|date:"d/m/Y" }}</span>
+                    <span class="badge badge-location"><i class="fas fa-map-marker-alt me-2"></i>{{ evento.local }}</span>
+                </div>
+                <p class="event-description">{{ evento.descricao }}</p>
+
+                {% if evento.atividades.all %}
+                <div class="activities-section">
+                    <h3><i class="fas fa-list me-2"></i>Atividades Programadas</h3>
+                    {% for atividade in evento.atividades.all %}
+                    <div class="activity-card">
+                        <h5 class="activity-title">{{ atividade.titulo }}</h5>
+                        <p class="activity-meta">
+                            <i class="fas fa-clock me-1"></i>{{ atividade.horario_inicio|time:"H:i" }} - {{ atividade.horario_fim|time:"H:i" }}
+                            {% if atividade.tipo %}
+                                | <i class="fas fa-tag me-1"></i>{{ atividade.get_tipo_display }}
+                            {% endif %}
+                        </p>
+                        {% if atividade.descricao %}
+                            <p>{{ atividade.descricao }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-back">Voltar aos Eventos</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-calendar-alt me-2"></i>Portal de Eventos</h5>
+                    <p class="mb-0">Confira nossa programação e participe!</p>
+                </div>
+                <div class="col-md-3">
+                    <h6>Links Úteis</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/api/docs/"><i class="fas fa-code me-2"></i>API Docs</a></li>
+                        <li><a href="/admin/"><i class="fas fa-user-shield me-2"></i>Admin</a></li>
+                        <li><a href="/contato/"><i class="fas fa-envelope me-2"></i>Contato</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6>Siga-nos</h6>
+                    <a href="#"><i class="fab fa-instagram fa-2x mb-2 d-block"></i></a>
+                    <a href="#"><i class="fab fa-facebook fa-2x mb-2 d-block"></i></a>
+                    <a href="#"><i class="fab fa-twitter fa-2x d-block"></i></a>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <small>&copy; 2025 Gestão de Eventos - Projeto de Estudo. Todos os direitos reservados.</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

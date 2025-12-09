@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Eventos</title>
+    <title>{{ page_title }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -13,20 +13,14 @@
         .navbar-brand { font-weight: 700; color: white !important; }
         .nav-link { color: rgba(255,255,255,0.8) !important; transition: color 0.3s; }
         .nav-link:hover { color: white !important; }
-        .hero { 
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://via.placeholder.com/1920x600?text=Eventos+Incriveis') center/cover no-repeat; 
-            color: white; padding: 100px 0; text-align: center; 
-        }
-        .hero h1 { font-size: 3rem; font-weight: 700; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
         .search-form { max-width: 600px; margin: 0 auto; }
         .search-form .form-control { border-radius: 50px 0 0 50px; border: none; padding: 15px 20px; }
         .search-form .btn { border-radius: 0 50px 50px 0; background: #667eea; border: none; padding: 15px 25px; }
         .events-section { padding: 80px 0; background: #f8f9fa; }
         .events-section h2 { font-weight: 600; color: #333; margin-bottom: 3rem; text-align: center; }
-        .card { 
-            border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; 
-            overflow: hidden; border-radius: 15px; 
+        .card {
+            border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden; border-radius: 15px;
         }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
         .card-img-top { height: 220px; object-fit: cover; }
@@ -67,30 +61,13 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>Sistema de Gestão de Eventos</h1>
-            <p>Confira nossa programação e participe dos melhores eventos!</p>
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <form class="search-form" method="GET" action="{% url 'busca_eventos' %}">
-                        <input class="form-control me-0" type="search" placeholder="O que você quer ver hoje? Digite o nome do evento..." name="q" aria-label="Buscar eventos">
-                        <button class="btn" type="submit"><i class="fas fa-search"></i> Buscar</button>
-                    </form>
-                </div>
-            </div>
-            <div class="mt-4">
-                <a href="/api/docs/" class="btn btn-primary btn-lg me-3">Documentação da API</a>
-                <a href="/admin/" class="btn btn-outline-light btn-lg">Área Administrativa</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Seção de Eventos -->
+    <!-- Seção de Resultados -->
     <section class="events-section">
         <div class="container">
-            <h2>Próximos Eventos</h2>
+            <h2>{{ page_title }}</h2>
+            {% if query %}
+                <p class="text-center mb-4">Busca por: "<strong>{{ query }}</strong>" - {{ resultados_count }} resultado{{ resultados_count|pluralize }}</p>
+            {% endif %}
             <div class="row">
                 {% for evento in eventos %}
                 <div class="col-lg-4 col-md-6 mb-4">
@@ -115,21 +92,22 @@
                 </div>
                 {% empty %}
                 <div class="col-12 no-events">
-                    <i class="fas fa-calendar-times fa-4x mb-3 text-muted"></i>
-                    <h4>Nenhum evento cadastrado no momento.</h4>
-                    <p>Volte em breve para conferir novidades!</p>
+                    <i class="fas fa-search fa-4x mb-3 text-muted"></i>
+                    <h4>Nenhum resultado encontrado.</h4>
+                    <p>Tente ajustar sua busca ou volte para a página inicial.</p>
+                    <a href="/" class="btn btn-primary">Voltar ao Início</a>
                 </div>
                 {% endfor %}
             </div>
 
-        <!-- Paginação aqui! (após o loop, antes do footer) -->
+        <!-- Paginação -->
         {% if is_paginated %}
         <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Paginação de eventos">
+            <nav aria-label="Paginação de resultados">
                 <ul class="pagination">
                     {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.local %}&local={{ request.GET.local }}{% endif %}">Anterior</a>
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Anterior</a>
                         </li>
                     {% endif %}
 
@@ -140,14 +118,14 @@
                             </li>
                         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.local %}&local={{ request.GET.local }}{% endif %}">{{ num }}</a>
+                                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
                             </li>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.local %}&local={{ request.GET.local }}{% endif %}">Próximo</a>
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Próximo</a>
                         </li>
                     {% endif %}
                 </ul>
