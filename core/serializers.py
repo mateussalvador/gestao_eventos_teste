@@ -33,7 +33,6 @@ class AtividadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Atividade
         fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at'] # timestamps são somente leitura. Não podem ser alterados diretamente.
 
 class InscricaoSerializer(serializers.ModelSerializer):
     participante_nome = serializers.CharField(source='participante.username', read_only=True)
