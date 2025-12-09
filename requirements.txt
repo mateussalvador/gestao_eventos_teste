@@ -2,6 +2,6 @@ django
 djangorestframework
 django-jazzmin
 drf-spectacular
-pillow
+Pillow
 django-filter
 requests
